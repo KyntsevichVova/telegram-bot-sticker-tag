@@ -127,5 +127,5 @@ def handle_sticker(bot, update):
     remove_user(user)
 
 def cancel(bot, update):
-    reinitialize()
+    remove_user(update.message.from_user.username)
     update.message.reply_text('Operations cancelled')
