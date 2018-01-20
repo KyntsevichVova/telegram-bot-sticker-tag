@@ -1,3 +1,9 @@
+from pymongo import MongoClient
+
+client = MongoClient()
+
+db = client['sticker-bot-db']['tags']
+
 queries = {}
 
 #modes:
@@ -8,16 +14,31 @@ queries = {}
 #  3 : last query == removetags
 
 def remove_user(user):
-    print(queries[user])
-    print(list(queries.keys()))
     del queries[user]
-    print(list(queries.keys()))
 
 def dump(message, tags):
-    message.reply_text(message.sticker.file_id + ' ' + ''.join(tags))
+    id = message.sticker.file_id
+    user = message.from_user.username
+    dumped = []
+    global db
+    for tag in tags:
+        doc = {'user' : user, 'tag' : tag, 'sticker' : id}
+        if db.find_one(doc) == None:
+            db.insert_one(doc)
+            dumped.append(tag)
+    message.reply_text('OK, you added tags: ' + ', '.join(dumped))
 
 def remove(message, tags):
-    message.reply_text(message.sticker.file_id + ' ' + ''.join(tags))
+    id = message.sticker.file_id
+    user = message.from_user.username
+    removed = []
+    global db
+    for tag in tags:
+        doc = {'user' : user, 'tag' : tag, 'sticker' : id}
+        if not db.find_one(doc) == None:
+            db.delete_one(doc)
+            removed.append(tag)
+    message.reply_text('OK, you removed tags: ' + ', '.join(removed))
 
 def add_tag(bot, update):
     global queries
@@ -90,8 +111,6 @@ def remove_tags(bot, update):
             queries[user][0].append(text)
             queries[user][1] = 3
             update.message.reply_text('OK, you are removing: ' + ', '.join(queries[user][0]))
-
-
 
 def handle_sticker(bot, update):
     global queries

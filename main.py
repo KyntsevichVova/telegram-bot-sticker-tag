@@ -1,4 +1,4 @@
-import telegram, pymongo, json, handlers
+import telegram, json, handlers
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 with open('BOTINFO.json') as f:
