@@ -1,7 +1,8 @@
 from pymongo import MongoClient
+from telegram import InlineQueryResultCachedSticker
 
+print('Opening database')
 client = MongoClient()
-
 db = client['sticker-bot-db']['tags']
 
 queries = {}
@@ -130,3 +131,14 @@ def handle_sticker(bot, update):
 def cancel(bot, update):
     remove_user(update.message.from_user.username)
     update.message.reply_text('Operations cancelled')
+
+def inline_query(bot, update):
+    query = update.inline_query
+    if not query.query:
+        return
+    stickers = db.find({'user' : query.from_user.username, 'tag' : query.query}, limit=5)
+    results = [InlineQueryResultCachedSticker(
+        id=query.query.upper(),
+        sticker_file_id=x['sticker']
+    ) for x in stickers]
+    update.inline_query.answer(results, is_personal=True)

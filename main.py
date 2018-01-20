@@ -1,5 +1,5 @@
 import telegram, json, handlers
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
 
 with open('BOTINFO.json') as f:
     TOKEN = json.load(f)['TOKEN']
@@ -19,6 +19,8 @@ def main():
 
     dispatcher.add_handler(MessageHandler(Filters.sticker, handlers.handle_sticker))
     dispatcher.add_handler(CommandHandler('cancel', handlers.cancel))
+
+    dispatcher.add_handler(InlineQueryHandler(handlers.inline_query))
 
     updater.start_polling()
     updater.idle()
