@@ -1,4 +1,4 @@
-import telegram, pymongo, json, Handlers
+import telegram, pymongo, json, handlers
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 with open('BOTINFO.json') as f:
@@ -11,14 +11,14 @@ def main():
     print('Starting')
     dispatcher = updater.dispatcher
     
-    dispatcher.add_handler(CommandHandler('addtag', Handlers.addtag))
-    dispatcher.add_handler(CommandHandler('addtags', Handlers.addtags))
+    dispatcher.add_handler(CommandHandler('addtag', handlers.addtag))
+    dispatcher.add_handler(CommandHandler('addtags', handlers.addtags))
 
-    dispatcher.add_handler(CommandHandler('removetag', Handlers.removetag))
-    dispatcher.add_handler(CommandHandler('removetags', Handlers.removetags))
+    dispatcher.add_handler(CommandHandler('removetag', handlers.removetag))
+    dispatcher.add_handler(CommandHandler('removetags', handlers.removetags))
 
-    dispatcher.add_handler(CommandHandler('cancel', Handlers.cancel))
-    dispatcher.add_handler(MessageHandler(Filters.sticker, Handlers.handle_sticker))
+    dispatcher.add_handler(CommandHandler('cancel', handlers.cancel))
+    dispatcher.add_handler(MessageHandler(Filters.sticker, handlers.handle_sticker))
 
     updater.start_polling()
     updater.idle()
