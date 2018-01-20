@@ -14,7 +14,8 @@ queries = {}
 #  3 : last query == removetags
 
 def remove_user(user):
-    del queries[user]
+    if user in queries:
+        del queries[user]
 
 def dump(message, tags):
     id = message.sticker.file_id
