@@ -1,7 +1,17 @@
 queries = {}
 
+#modes:
+# -1 : no queries from user
+#  0 : last query == addtag
+#  1 : last query == addtags
+#  2 : last query == removetag
+#  3 : last query == removetags
+
 def remove_user(user):
+    print(queries[user])
+    print(list(queries.keys()))
     del queries[user]
+    print(list(queries.keys()))
 
 def dump(message, tags):
     message.reply_text(message.sticker.file_id + ' ' + ''.join(tags))
@@ -9,74 +19,93 @@ def dump(message, tags):
 def remove(message, tags):
     message.reply_text(message.sticker.file_id + ' ' + ''.join(tags))
 
-def addtag(bot, update):
-    print('Addtag from ' + update.message.from_user.username)
-    global onetag_add, curtags_add
-    if onetag_add:
+def add_tag(bot, update):
+    global queries
+    user = update.message.from_user.username
+    if user not in queries:
+        queries[user] = [[], -1]
+    mode = queries[user][1]
+    print('Add tag from ' + user)
+    if mode == 0 or mode == 2 or mode == 3:
         update.message.reply_text('Error, you are supposed to send sticker now')
     else:
         text = update.message.text[len('/addtag'):].strip()
         if text == '':
             update.message.reply_text('Tag cannot be empty')
         else:
-            curtags_add.append(text)
-            onetag_add = True
-            update.message.reply_text('OK, you are adding: ' + ', '.join(curtags_add))
+            queries[user][0].append(text)
+            queries[user][1] = 0
+            update.message.reply_text('OK, you are adding: ' + ', '.join(queries[user][0]))
 
-def addtags(bot, update):
-    print('Addtags from ' + update.message.from_user.username)
-    global onetag_add, curtags_add
-    if onetag_add:
+def add_tags(bot, update):
+    global queries
+    user = update.message.from_user.username
+    if user not in queries:
+        queries[user] = [[], -1]
+    mode = queries[user][1]
+    print('Add tags from ' + user)
+    if mode == 0 or mode == 2 or mode == 3:
         update.message.reply_text('Error, you are supposed to send sticker now')
     else:
         text = update.message.text[len('/addtags'):].strip()
         if text == '':
             update.message.reply_text('Tag cannot be empty')
         else:
-            curtags_add.append(text)
-            update.message.reply_text('OK, you are adding: ' + ', '.join(curtags_add))
+            queries[user][0].append(text)
+            queries[user][1] = 1
+            update.message.reply_text('OK, you are adding: ' + ', '.join(queries[user][0]))
 
-def removetag(bot, update):
-    print('Addtag from ' + update.message.from_user.username)
-    global onetag_rem, curtags_rem
-    if onetag_rem:
+def remove_tag(bot, update):
+    global queries
+    user = update.message.from_user.username
+    if user not in queries:
+        queries[user] = [[], -1]
+    mode = queries[user][1]
+    print('Remove tag from ' + user)
+    if mode == 0 or mode == 1 or mode == 2:
         update.message.reply_text('Error, you are supposed to send sticker now')
     else:
-        text = update.message.text[len('/addtag'):].strip()
+        text = update.message.text[len('/removetag'):].strip()
         if text == '':
             update.message.reply_text('Tag cannot be empty')
         else:
-            curtags_rem.append(text)
-            onetag_rem = True
-            update.message.reply_text('OK, you are adding: ' + ', '.join(curtags_rem))
+            queries[user][0].append(text)
+            queries[user][1] = 2
+            update.message.reply_text('OK, you are removing: ' + ', '.join(queries[user][0]))
 
-def removetags(bot, update):
-    print('Addtags from ' + update.message.from_user.username)
-    global onetag_rem, curtags_rem
-    if onetag_rem:
+def remove_tags(bot, update):
+    global queries
+    user = update.message.from_user.username
+    if user not in queries:
+        queries[user] = [[], -1]
+    mode = queries[user][1]
+    print('Remove tags from ' + user)
+    if mode == 0 or mode == 1 or mode == 2:
         update.message.reply_text('Error, you are supposed to send sticker now')
     else:
-        text = update.message.text[len('/addtags'):].strip()
+        text = update.message.text[len('/removetags'):].strip()
         if text == '':
             update.message.reply_text('Tag cannot be empty')
         else:
-            curtags_rem.append(text)
-            update.message.reply_text('OK, you are adding: ' + ', '.join(curtags_rem))
+            queries[user][0].append(text)
+            queries[user][1] = 3
+            update.message.reply_text('OK, you are removing: ' + ', '.join(queries[user][0]))
+
+
 
 def handle_sticker(bot, update):
-    global mode
-    print('Sticker ' + update.message.sticker.file_id + ' from ' + update.message.from_user.username)
-    if mode == -1:
-        update.message.reply_text('Please send tags first')
-    elif mode == 0:
-        dump(update.message, tags)
-    elif mode == 1:
-        remove(update.message, tags)
-    global curtags
-    if curtags == []:
-        update.message.reply_text('Please send tags first')
-    dumptags(update.message, curtags)
-    reinitialize()
+    global queries
+    message = update.message
+    user = message.from_user.username
+    tags, mode = queries[user]
+    print('Sticker ' + message.sticker.file_id + ' from ' + user)
+    if mode == -1 or tags == []:
+        message.reply_text('Please send tags first')
+    elif mode == 0 or mode == 1:
+        dump(message, tags)
+    elif mode == 2 or mode == 3:
+        remove(message, tags)
+    remove_user(user)
 
 def cancel(bot, update):
     reinitialize()
