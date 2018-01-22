@@ -150,9 +150,14 @@ def inline_query(bot, update):
     print(query.from_user.username + ': ' + query.query)
     if not query.query:
         return
-    stickers = db.find(filter={'user' : query.from_user.username, 'tag' : {'$regex': re.escape(query.query), '$options': 'i'}})
+    stickers = db.find(
+        filter={
+            'user' : query.from_user.username, 
+            'tag' : {'$regex': re.escape(query.query), '$options': 'i'}}
+        limit=5)
+    stickerset = {stickers[x][sticker] for x in range(stickers.count())}
     results = [InlineQueryResultCachedSticker(
-        id=stickers[x]['sticker'],
-        sticker_file_id=stickers[x]['sticker']
-    ) for x in range(stickers.count())]
+        id=x,
+        sticker_file_id=x
+    ) for x in stickerset]
     print('Queried: ' + update.inline_query.answer(results, is_personal=True, cache_time=10))
