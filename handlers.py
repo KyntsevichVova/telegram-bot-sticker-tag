@@ -1,5 +1,6 @@
 from pymongo import MongoClient, cursor
 from telegram import InlineQueryResultCachedSticker
+import re
 
 print('Opening database')
 client = MongoClient()
@@ -149,7 +150,7 @@ def inline_query(bot, update):
     print(query.from_user.username + ': ' + query.query)
     if not query.query:
         return
-    stickers = db.find(filter={'user' : query.from_user.username, 'tag' : query.query}, limit=5)
+    stickers = db.find(filter={'user' : query.from_user.username, 'tag' : {'$regex': re.escape(query.query), '$options': 'i'}})
     results = [InlineQueryResultCachedSticker(
         id=stickers[x]['sticker'],
         sticker_file_id=stickers[x]['sticker']
