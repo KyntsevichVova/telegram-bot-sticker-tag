@@ -1,5 +1,6 @@
 from pymongo import MongoClient, cursor
 from telegram import InlineQueryResultCachedSticker
+from uuid import uuid4
 import re
 
 print('Opening database')
@@ -157,7 +158,7 @@ def inline_query(bot, update):
         limit=5)
     stickerset = {stickers[x]['sticker'] for x in range(stickers.count())}
     results = [InlineQueryResultCachedSticker(
-        id=x,
+        id=uuid4(),
         sticker_file_id=x
     ) for x in stickerset]
     print('Queried: ' + update.inline_query.answer(results, is_personal=True, cache_time=10))
