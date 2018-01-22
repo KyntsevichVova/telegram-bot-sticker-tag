@@ -1,4 +1,4 @@
-from pymongo import MongoClient
+from pymongo import MongoClient, cursor
 from telegram import InlineQueryResultCachedSticker
 
 print('Opening database')
@@ -52,7 +52,10 @@ def add_tag(bot, update):
     if mode == 0 or mode == 2 or mode == 3:
         update.message.reply_text('Error, you are supposed to send sticker now')
     else:
-        text = update.message.text[len('/addtag'):].strip()
+        ind = update.message.text.find(' ')
+        text = update.message.text[ind:].strip()
+        if ind == -1:
+            text = ''
         if text == '':
             update.message.reply_text('Tag cannot be empty')
         else:
@@ -70,7 +73,10 @@ def add_tags(bot, update):
     if mode == 0 or mode == 2 or mode == 3:
         update.message.reply_text('Error, you are supposed to send sticker now')
     else:
-        text = update.message.text[len('/addtags'):].strip()
+        ind = update.message.text.find(' ')
+        text = update.message.text[ind:].strip()
+        if ind == -1:
+            text = ''
         if text == '':
             update.message.reply_text('Tag cannot be empty')
         else:
@@ -88,7 +94,10 @@ def remove_tag(bot, update):
     if mode == 0 or mode == 1 or mode == 2:
         update.message.reply_text('Error, you are supposed to send sticker now')
     else:
-        text = update.message.text[len('/removetag'):].strip()
+        ind = update.message.text.find(' ')
+        text = update.message.text[ind:].strip()
+        if ind == -1:
+            text = ''
         if text == '':
             update.message.reply_text('Tag cannot be empty')
         else:
@@ -106,7 +115,10 @@ def remove_tags(bot, update):
     if mode == 0 or mode == 1 or mode == 2:
         update.message.reply_text('Error, you are supposed to send sticker now')
     else:
-        text = update.message.text[len('/removetags'):].strip()
+        ind = update.message.text.find(' ')
+        text = update.message.text[ind:].strip()
+        if ind == -1:
+            text = ''
         if text == '':
             update.message.reply_text('Tag cannot be empty')
         else:
@@ -134,11 +146,12 @@ def cancel(bot, update):
 
 def inline_query(bot, update):
     query = update.inline_query
+    print(query.from_user.username + ': ' + query.query)
     if not query.query:
         return
-    stickers = db.find({'user' : query.from_user.username, 'tag' : query.query}, limit=5)
+    stickers = db.find(filter={'user' : query.from_user.username, 'tag' : query.query}, limit=5)
     results = [InlineQueryResultCachedSticker(
-        id=query.query.upper(),
-        sticker_file_id=x['sticker']
-    ) for x in stickers]
-    update.inline_query.answer(results, is_personal=True)
+        id=stickers[x]['sticker'],
+        sticker_file_id=stickers[x]['sticker']
+    ) for x in range(stickers.count())]
+    print('Queried: ' + update.inline_query.answer(results, is_personal=True, cache_time=10))
