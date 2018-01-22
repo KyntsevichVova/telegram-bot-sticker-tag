@@ -153,9 +153,9 @@ def inline_query(bot, update):
     stickers = db.find(
         filter={
             'user' : query.from_user.username, 
-            'tag' : {'$regex': re.escape(query.query), '$options': 'i'}}
+            'tag' : {'$regex': re.escape(query.query), '$options': 'i'}},
         limit=5)
-    stickerset = {stickers[x][sticker] for x in range(stickers.count())}
+    stickerset = {stickers[x]['sticker'] for x in range(stickers.count())}
     results = [InlineQueryResultCachedSticker(
         id=x,
         sticker_file_id=x
