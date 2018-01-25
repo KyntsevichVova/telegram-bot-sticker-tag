@@ -17,9 +17,10 @@ def main():
     dispatcher.add_handler(CommandHandler('removetag', handlers.remove_tag))
     dispatcher.add_handler(CommandHandler('removetags', handlers.remove_tags))
 
-    dispatcher.add_handler(MessageHandler(Filters.sticker, handlers.handle_sticker))
+    dispatcher.add_handler(CommandHandler('showtags', handlers.show_tags))
     dispatcher.add_handler(CommandHandler('cancel', handlers.cancel))
 
+    dispatcher.add_handler(MessageHandler(Filters.sticker, handlers.handle_sticker))
     dispatcher.add_handler(InlineQueryHandler(handlers.inline_query))
 
     updater.start_polling()
