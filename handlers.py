@@ -183,4 +183,5 @@ def inline_query(bot, update):
         id=uuid4(),
         sticker_file_id=x
     ) for x in stickerset]
-    print('Queried: ' + update.inline_query.answer(results, is_personal=True, cache_time=10))
+    status = update.inline_query.answer(results, is_personal=True, cache_time=10)
+    print('Queried: {0}'.format(status))
